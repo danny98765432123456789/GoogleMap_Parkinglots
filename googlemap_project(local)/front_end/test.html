@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <style>
+    /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+
+    #map {
+      height: 100%;
+    }
+    /* Optional: Makes the sample page fill the window. */
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="map"></div>
+  <script>
+    var map;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 16,
+        center: new google.maps.LatLng(25.019303, 121.542425),
+        mapTypeId: 'terrain'
+      });
+
+      // Create a <script> tag and set the USGS URL as the source.
+      var script = document.createElement('script');
+      // This example uses a local copy of the GeoJSON stored at
+      // http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/2.5_week.geojsonp
+      script.src = 'js/data.js';
+      document.getElementsByTagName('head')[0].appendChild(script);
+
+
+      // Loop through the results array and place a marker for each
+      // set of coordinates.
+      window.eqfeed_callback = function(results) {
+        for (var i = 0; i < results.features.length; i++) {
+          var latLng = new google.maps.LatLng(results.features[i].park_longitude, results.features[i].park_latitude);
+          var marker = new google.maps.Marker({
+            position: latLng,
+            map: map
+          });
+          //var test = results.features[i].park_name+i;
+          var infowindow = new google.maps.InfoWindow();
+          let contentString =
+            '<div id="bodyContent >' +
+            '<div id="content">' +
+            '<div id="siteNotice" style="font-size:30px" >' + results.features[i].park_name +
+            '</div>' +
+            '<div style="font-size:20px" >' + '<p ><b>剩餘車位: </b>' + results.features[i].park_totalcar +
+            '</p>' + '</div>' +
+            '<div style="font-size:20px" >' + '<p ><b>計費方式: </b>' + results.features[i].park_payex +
+            '</p>' + '</div>' +
+            '</div>'
+          google.maps.event.addListener(marker, 'click', (function(marker, i) {
+            return function() {
+              infowindow.setContent(contentString
+
+              );
+              infowindow.open(map, marker);
+            }
+          })(marker, i));
+        }
+      }
+
+    }
+  </script>
+
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCO4ZYLVfg2r34jXwNR-u5ce7eO2P3Gjmg&callback=initMap">
+  </script>
+  <script type="text/javascript" src="HTTP://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js"></script>
+</body>
+
+</html>
